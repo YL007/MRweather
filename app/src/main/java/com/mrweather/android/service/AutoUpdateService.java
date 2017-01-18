@@ -1,12 +1,14 @@
 package com.mrweather.android.service;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
-import com.mrweather.android.WeatherActivity;
 import com.mrweather.android.gson.Weather;
 import com.mrweather.android.util.HttpUtil;
 import com.mrweather.android.util.Utility;
@@ -30,6 +32,13 @@ public class AutoUpdateService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         updateWeather();
         updateBingPic();
+        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        int anHour = 8*60*60*1000;   //8小时候更新
+        long triggerAtTime = SystemClock.elapsedRealtime()+anHour;
+        Intent i = new Intent(this,AutoUpdateService.class);
+        PendingIntent pi = PendingIntent.getService(this,0,i,0);
+        manager.cancel(pi);
+        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
         return super.onStartCommand(intent, flags, startId);
     }
 
