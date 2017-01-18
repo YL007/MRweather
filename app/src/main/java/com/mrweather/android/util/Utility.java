@@ -2,9 +2,11 @@ package com.mrweather.android.util;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.mrweather.android.db.City;
 import com.mrweather.android.db.County;
 import com.mrweather.android.db.Province;
+import com.mrweather.android.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,9 +23,9 @@ public class Utility {
     public static boolean handleProvinceResponse(String response){
         if (!TextUtils.isEmpty(response)){
             try {
-                JSONArray allProvince = new JSONArray(response);
-                for (int i=0;i<allProvince.length();i++){
-                    JSONObject provinceObject = allProvince.getJSONObject(i);
+                JSONArray allProvinces = new JSONArray(response);
+                for (int i=0;i<allProvinces.length();i++){
+                    JSONObject provinceObject = allProvinces.getJSONObject(i);
                     Province province = new Province();
                     province.setProvinceName(provinceObject.getString("name"));
                     province.setProvinceCode(provinceObject.getInt("id"));
@@ -84,5 +86,19 @@ public class Utility {
 
         }
         return false;
+    }
+    /**
+     * 将返回的json数据解析成Weather实体类
+     */
+    public static Weather handleWeatherResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+            return null;
     }
 }
